@@ -87,6 +87,34 @@ const AdminPanel = () => {
     }
   };
 
+  const sendStatusEmail = async (request: DonationRequest, status: 'approved' | 'rejected', appointmentDateValue?: string) => {
+    if (!request.email) {
+      console.log('No email provided, skipping notification');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.functions.invoke('send-status-email', {
+        body: {
+          email: request.email,
+          firstName: request.first_name,
+          lastName: request.last_name,
+          status: status,
+          appointmentDate: appointmentDateValue,
+          language: language,
+        },
+      });
+
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Status email sent successfully');
+      }
+    } catch (error) {
+      console.error('Error invoking email function:', error);
+    }
+  };
+
   const updateRequestStatus = async (id: string, status: 'approved' | 'rejected') => {
     setIsUpdating(true);
     try {
@@ -105,6 +133,12 @@ const AdminPanel = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // Send email notification
+      const request = requests.find(r => r.id === id);
+      if (request) {
+        await sendStatusEmail(request, status, status === 'approved' ? appointmentDate : undefined);
+      }
 
       toast.success(status === 'approved' ? t.admin.approved : t.admin.rejected);
       fetchRequests();
