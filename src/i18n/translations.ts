@@ -96,6 +96,12 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       q6: "Êtes-vous enceinte ou avez-vous accouché au cours des 6 derniers mois ?",
       q7: "Avez-vous consommé de l'alcool au cours des dernières 24 heures ?",
       q8: "Avez-vous eu de la fièvre au cours de la dernière semaine ?",
+      q9: "Votre dernier don de sang date-t-il de moins de 2 mois ?",
+      q10: "Pesez-vous moins de 50 kg ?",
+      q11: "Avez-vous moins de 18 ans ou plus de 65 ans ?",
+      q12: "Avez-vous des problèmes cardiaques ou une hypertension non contrôlée ?",
+      q13: "Êtes-vous diabétique sous insuline ?",
+      q14: "Avez-vous déjà été testé positif au VIH, hépatite B ou C ?",
       yes: "Oui",
       no: "Non",
       // Buttons
@@ -105,9 +111,20 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       // Results
       successTitle: "Demande envoyée !",
       successMessage: "Votre demande de don de sang a été enregistrée avec succès. Nous vous contacterons bientôt pour fixer un rendez-vous.",
+      yourDonationNumber: "Votre numéro de suivi",
+      trackStatusInfo: "Utilisez ce numéro sur la page d'accueil pour suivre l'état de votre demande.",
       ineligibleTitle: "Vous n'êtes pas éligible",
       ineligibleMessage: "Malheureusement, vous ne pouvez pas donner votre sang pour le moment.",
       ineligibleReason: "Raison :",
+      // Status Checker
+      checkStatus: "Suivre ma demande",
+      enterIdentityNumber: "Entrez votre numéro d'identité (CIN)",
+      checkButton: "Vérifier",
+      statusPending: "Votre demande est en cours de traitement",
+      statusApproved: "Votre demande a été acceptée",
+      statusRejected: "Votre demande a été refusée",
+      noRequestFound: "Aucune demande trouvée avec ce numéro",
+      appointmentInfo: "Votre rendez-vous est prévu le :",
       backHome: "Retour à l'accueil",
     },
     // Footer
@@ -256,6 +273,12 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       q6: "هل أنتِ حامل أو ولدتِ خلال الأشهر الستة الماضية؟",
       q7: "هل تناولت الكحول خلال الـ 24 ساعة الماضية؟",
       q8: "هل أصبت بالحمى خلال الأسبوع الماضي؟",
+      q9: "هل تبرعت بالدم منذ أقل من شهرين؟",
+      q10: "هل وزنك أقل من 50 كغ؟",
+      q11: "هل عمرك أقل من 18 سنة أو أكثر من 65 سنة؟",
+      q12: "هل لديك مشاكل قلبية أو ارتفاع ضغط دم غير مسيطر عليه؟",
+      q13: "هل أنت مريض سكري وتستخدم الأنسولين؟",
+      q14: "هل سبق وأُصبت بفيروس نقص المناعة أو التهاب الكبد B أو C؟",
       yes: "نعم",
       no: "لا",
       // Buttons
@@ -265,10 +288,21 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       // Results
       successTitle: "تم إرسال الطلب!",
       successMessage: "تم تسجيل طلب التبرع بالدم بنجاح. سنتواصل معك قريباً لتحديد موعد.",
+      yourDonationNumber: "رقم المتابعة الخاص بك",
+      trackStatusInfo: "استخدم هذا الرقم في الصفحة الرئيسية لمتابعة حالة طلبك.",
       ineligibleTitle: "أنت غير مؤهل",
       ineligibleMessage: "للأسف، لا يمكنك التبرع بالدم في الوقت الحالي.",
       ineligibleReason: "السبب:",
       backHome: "العودة للرئيسية",
+      // Status Checker
+      checkStatus: "متابعة طلبي",
+      enterIdentityNumber: "أدخل رقم الهوية الخاص بك",
+      checkButton: "تحقق",
+      statusPending: "طلبك قيد المعالجة",
+      statusApproved: "تم قبول طلبك",
+      statusRejected: "تم رفض طلبك",
+      noRequestFound: "لم يتم العثور على طلب بهذا الرقم",
+      appointmentInfo: "موعدك المحدد:",
     },
     // Footer
     footer: {

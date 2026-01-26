@@ -36,7 +36,7 @@ const initialFormData: DonationFormData = {
 };
 
 // Questions that make the donor ineligible if answered "yes"
-const disqualifyingQuestions = ['q1', 'q3', 'q5', 'q6', 'q7', 'q8'];
+const disqualifyingQuestions = ['q1', 'q3', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14'];
 
 const DonationForm = () => {
   const { t, language } = useLanguage();
@@ -179,6 +179,7 @@ const DonationForm = () => {
               <ResultStep
                 eligible={result.eligible}
                 reason={result.reason}
+                identityNumber={formData.identityNumber}
                 onGoHome={goHome}
               />
             )}
