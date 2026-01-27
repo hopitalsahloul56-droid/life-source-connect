@@ -179,7 +179,7 @@ const AdminPanel = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-secondary">{t.admin.title}</h1>
+            <h1 className="text-3xl font-bold text-secondary-foreground">{t.admin.title}</h1>
             <p className="text-muted-foreground mt-1">{user?.email}</p>
           </div>
           <Button variant="outline" onClick={signOut}>
