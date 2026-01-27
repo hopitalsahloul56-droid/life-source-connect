@@ -5,8 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { DonationFormData } from './DonationForm';
-import { User, ArrowRight, ArrowLeft } from 'lucide-react';
+import { User, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PersonalInfoStepProps {
   formData: DonationFormData;
@@ -20,6 +22,7 @@ const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'unknown']
 const PersonalInfoStep = ({ formData, updateFormData, onNext, onPrev }: PersonalInfoStepProps) => {
   const { t, isRTL } = useLanguage();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isChecking, setIsChecking] = useState(false);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -52,8 +55,63 @@ const PersonalInfoStep = ({ formData, updateFormData, onNext, onPrev }: Personal
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
-    if (validate()) {
+  const checkExistingPendingRequest = async (): Promise<boolean> => {
+    const { data, error } = await supabase
+      .from('donation_requests')
+      .select('id, status, appointment_date')
+      .eq('identity_number', formData.identityNumber)
+      .eq('status', 'pending')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking existing request:', error);
+      return false;
+    }
+
+    if (data) {
+      toast.error(t.form.pendingRequestExists);
+      return true;
+    }
+
+    // Check for approved requests with future appointment dates
+    const { data: approvedData, error: approvedError } = await supabase
+      .from('donation_requests')
+      .select('id, appointment_date')
+      .eq('identity_number', formData.identityNumber)
+      .eq('status', 'approved')
+      .not('appointment_date', 'is', null);
+
+    if (approvedError) {
+      console.error('Error checking approved requests:', approvedError);
+      return false;
+    }
+
+    if (approvedData && approvedData.length > 0) {
+      const now = new Date();
+      const hasFutureAppointment = approvedData.some(req => {
+        if (req.appointment_date) {
+          return new Date(req.appointment_date) > now;
+        }
+        return false;
+      });
+
+      if (hasFutureAppointment) {
+        toast.error(t.form.appointmentPending);
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const handleNext = async () => {
+    if (!validate()) return;
+    
+    setIsChecking(true);
+    const hasExisting = await checkExistingPendingRequest();
+    setIsChecking(false);
+    
+    if (!hasExisting) {
       onNext();
     }
   };
@@ -184,9 +242,11 @@ const PersonalInfoStep = ({ formData, updateFormData, onNext, onPrev }: Personal
           onClick={handleNext}
           size="lg"
           className="rounded-full px-8"
+          disabled={isChecking}
         >
+          {isChecking && <Loader2 className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />}
           {t.form.next}
-          <ArrowRight className={`w-4 h-4 ${isRTL ? 'mr-2 rotate-180' : 'ml-2'}`} />
+          {!isChecking && <ArrowRight className={`w-4 h-4 ${isRTL ? 'mr-2 rotate-180' : 'ml-2'}`} />}
         </Button>
       </div>
     </div>

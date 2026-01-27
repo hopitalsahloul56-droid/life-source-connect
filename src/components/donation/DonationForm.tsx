@@ -149,65 +149,8 @@ const DonationForm = () => {
       eligible: true
     };
   };
-  const checkExistingPendingRequest = async (): Promise<boolean> => {
-    const { data, error } = await supabase
-      .from('donation_requests')
-      .select('id, status, appointment_date')
-      .eq('identity_number', formData.identityNumber)
-      .eq('status', 'pending')
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error checking existing request:', error);
-      return false;
-    }
-
-    if (data) {
-      toast.error(t.form.pendingRequestExists);
-      return true;
-    }
-
-    // Check for approved requests with future appointment dates
-    const { data: approvedData, error: approvedError } = await supabase
-      .from('donation_requests')
-      .select('id, appointment_date')
-      .eq('identity_number', formData.identityNumber)
-      .eq('status', 'approved')
-      .not('appointment_date', 'is', null);
-
-    if (approvedError) {
-      console.error('Error checking approved requests:', approvedError);
-      return false;
-    }
-
-    if (approvedData && approvedData.length > 0) {
-      const now = new Date();
-      const hasFutureAppointment = approvedData.some(req => {
-        if (req.appointment_date) {
-          return new Date(req.appointment_date) > now;
-        }
-        return false;
-      });
-
-      if (hasFutureAppointment) {
-        toast.error(t.form.appointmentPending);
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    
-    // Check for existing pending request with same CIN
-    const hasExisting = await checkExistingPendingRequest();
-    if (hasExisting) {
-      setIsSubmitting(false);
-      return;
-    }
-
     const eligibilityResult = checkEligibility();
     setResult(eligibilityResult);
     try {
