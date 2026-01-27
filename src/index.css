@@ -167,11 +167,7 @@
   /* Glass effect */
   .glass {
     @apply backdrop-blur-md border border-border/50;
-    background: hsl(var(--background) / 0.85);
-  }
-
-  .dark .glass {
-    background: hsl(var(--card) / 0.85);
+    background: hsl(var(--card) / 0.9);
   }
 
   /* Pulse animation for CTA */
