@@ -168,6 +168,7 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       noUpcomingAppointments: "Aucun rendez-vous à venir",
       noPastAppointments: "Aucun rendez-vous passé",
       appointmentTime: "Heure du rendez-vous",
+      appointmentRequired: "Veuillez sélectionner une date de rendez-vous pour approuver",
     },
     // Auth
     auth: {
@@ -354,6 +355,7 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       noUpcomingAppointments: "لا توجد مواعيد قادمة",
       noPastAppointments: "لا توجد مواعيد سابقة",
       appointmentTime: "وقت الموعد",
+      appointmentRequired: "يرجى تحديد موعد للموافقة على الطلب",
     },
     // Auth
     auth: {
