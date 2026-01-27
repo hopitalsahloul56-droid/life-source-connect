@@ -1,1 +1,7 @@
 project_id = "nbfhcjisqvrfsesozjkc"
+
+[functions.send-status-email]
+verify_jwt = false
+
+[functions.check-donation-status]
+verify_jwt = false

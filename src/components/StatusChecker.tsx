@@ -28,18 +28,19 @@ const StatusChecker = () => {
     setResult(null);
 
     try {
-      const { data, error } = await supabase
-        .from('donation_requests')
-        .select('status, appointment_date, first_name, last_name')
-        .eq('identity_number', identityNumber.trim())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('check-donation-status', {
+        body: { identity_number: identityNumber.trim() }
+      });
 
       if (error) throw error;
       
-      if (data) {
-        setResult(data as DonationStatus);
+      if (data?.found) {
+        setResult({
+          status: data.status,
+          appointment_date: data.appointment_date,
+          first_name: data.first_name,
+          last_name: data.last_name,
+        });
       } else {
         setNotFound(true);
       }
