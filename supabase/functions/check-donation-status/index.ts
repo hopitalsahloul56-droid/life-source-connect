@@ -9,8 +9,28 @@ interface StatusResponse {
   found: boolean;
   status?: 'pending' | 'approved' | 'rejected';
   appointment_date?: string | null;
-  first_name?: string;
-  last_name?: string;
+}
+
+// Simple in-memory rate limiting (resets on function cold start)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 10; // Max requests per window
+const RATE_WINDOW = 60000; // 1 minute in milliseconds
+
+function checkRateLimit(clientIP: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(clientIP);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
 }
 
 Deno.serve(async (req) => {
@@ -20,6 +40,19 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get client IP for rate limiting
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('cf-connecting-ip') || 
+                     'unknown';
+    
+    // Check rate limit
+    if (!checkRateLimit(clientIP)) {
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { identity_number } = await req.json();
 
     // Validate input
@@ -45,10 +78,10 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Query only the necessary fields - no PII exposure beyond what's needed
+    // Query only status and appointment - NO PII (names, etc.)
     const { data, error } = await supabase
       .from('donation_requests')
-      .select('status, appointment_date, first_name, last_name')
+      .select('status, appointment_date')
       .eq('identity_number', trimmedId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -69,8 +102,7 @@ Deno.serve(async (req) => {
     if (data) {
       response.status = data.status;
       response.appointment_date = data.appointment_date;
-      response.first_name = data.first_name;
-      response.last_name = data.last_name;
+      // Intentionally NOT returning first_name or last_name to prevent enumeration attacks
     }
 
     return new Response(
