@@ -24,7 +24,6 @@ Deno.serve(async (req) => {
 
     // Validate input
     if (!identity_number || typeof identity_number !== 'string') {
-      console.log('Invalid request: missing or invalid identity_number');
       return new Response(
         JSON.stringify({ error: 'Identity number is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -33,16 +32,13 @@ Deno.serve(async (req) => {
 
     const trimmedId = identity_number.trim();
     
-    // Basic validation - identity number should be numeric and reasonable length
+    // Basic validation - identity number should be numeric and 8 digits
     if (!/^\d{8}$/.test(trimmedId)) {
-      console.log('Invalid identity number format:', trimmedId);
       return new Response(
         JSON.stringify({ error: 'Invalid identity number format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('Checking donation status for identity number:', trimmedId);
 
     // Create Supabase client with service role to bypass RLS
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -59,7 +55,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database query failed');
       return new Response(
         JSON.stringify({ error: 'Failed to check status' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -75,9 +71,6 @@ Deno.serve(async (req) => {
       response.appointment_date = data.appointment_date;
       response.first_name = data.first_name;
       response.last_name = data.last_name;
-      console.log('Found donation request with status:', data.status);
-    } else {
-      console.log('No donation request found for identity number');
     }
 
     return new Response(
@@ -86,7 +79,7 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Request processing failed');
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
