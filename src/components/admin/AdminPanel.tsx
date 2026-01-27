@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { BarChart3, Clock, CheckCircle, XCircle, Users, Eye, Calendar, Loader2, LogOut } from 'lucide-react';
+import AppointmentsCalendar from './AppointmentsCalendar';
 interface DonationRequest {
   id: string;
   first_name: string;
@@ -212,7 +213,10 @@ const AdminPanel = () => {
           </Card>
         </div>
 
-        {/* Requests List */}
+        {/* Appointments Calendar */}
+        <AppointmentsCalendar />
+
+        <div className="mt-8">
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-primary" />
@@ -346,6 +350,7 @@ const AdminPanel = () => {
                 </div>)}
             </div>}
         </Card>
+        </div>
       </div>
     </div>;
 };

@@ -126,6 +126,9 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       noRequestFound: "Aucune demande trouvée avec ce numéro",
       appointmentInfo: "Votre rendez-vous est prévu le :",
       backHome: "Retour à l'accueil",
+      cinInvalid: "Le numéro d'identité doit contenir exactement 8 chiffres",
+      pendingRequestExists: "Vous avez déjà une demande en cours de traitement avec ce numéro d'identité",
+      appointmentPending: "Vous avez déjà un rendez-vous prévu avec ce numéro d'identité",
     },
     // Footer
     footer: {
@@ -159,6 +162,12 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       eligibilityAnswers: "Réponses d'éligibilité",
       requestDate: "Date de demande",
       status: "Statut",
+      calendar: "Calendrier des rendez-vous",
+      upcomingAppointments: "Rendez-vous à venir",
+      pastAppointments: "Rendez-vous passés",
+      noUpcomingAppointments: "Aucun rendez-vous à venir",
+      noPastAppointments: "Aucun rendez-vous passé",
+      appointmentTime: "Heure du rendez-vous",
     },
     // Auth
     auth: {
@@ -303,6 +312,9 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       statusRejected: "تم رفض طلبك",
       noRequestFound: "لم يتم العثور على طلب بهذا الرقم",
       appointmentInfo: "موعدك المحدد:",
+      cinInvalid: "رقم الهوية يجب أن يحتوي على 8 أرقام بالضبط",
+      pendingRequestExists: "لديك بالفعل طلب قيد المعالجة بهذا الرقم",
+      appointmentPending: "لديك بالفعل موعد محدد بهذا الرقم",
     },
     // Footer
     footer: {
@@ -336,6 +348,12 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       eligibilityAnswers: "إجابات الأهلية",
       requestDate: "تاريخ الطلب",
       status: "الحالة",
+      calendar: "جدول المواعيد",
+      upcomingAppointments: "المواعيد القادمة",
+      pastAppointments: "المواعيد السابقة",
+      noUpcomingAppointments: "لا توجد مواعيد قادمة",
+      noPastAppointments: "لا توجد مواعيد سابقة",
+      appointmentTime: "وقت الموعد",
     },
     // Auth
     auth: {
