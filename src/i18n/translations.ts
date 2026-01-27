@@ -169,6 +169,7 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       noPastAppointments: "Aucun rendez-vous passé",
       appointmentTime: "Heure du rendez-vous",
       appointmentRequired: "Veuillez sélectionner une date de rendez-vous pour approuver",
+      appointmentMustBeFuture: "La date du rendez-vous doit être dans le futur",
     },
     // Auth
     auth: {
@@ -356,6 +357,7 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       noPastAppointments: "لا توجد مواعيد سابقة",
       appointmentTime: "وقت الموعد",
       appointmentRequired: "يرجى تحديد موعد للموافقة على الطلب",
+      appointmentMustBeFuture: "يجب أن يكون تاريخ الموعد في المستقبل",
     },
     // Auth
     auth: {
