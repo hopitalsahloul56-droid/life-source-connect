@@ -35,6 +35,59 @@ const initialFormData: DonationFormData = {
 
 // Questions that make the donor ineligible if answered "yes"
 const disqualifyingQuestions = ['q1', 'q3', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14'];
+
+// Proper explanations for each disqualifying question
+const ineligibilityReasons: Record<string, { fr: string; ar: string }> = {
+  q1: {
+    fr: "Vous avez été malade récemment. Veuillez attendre votre rétablissement complet avant de donner votre sang.",
+    ar: "لقد كنت مريضًا مؤخرًا. يرجى الانتظار حتى تتعافى تمامًا قبل التبرع بالدم."
+  },
+  q3: {
+    fr: "Vous avez subi une intervention chirurgicale au cours des 6 derniers mois. Veuillez attendre la période de récupération complète.",
+    ar: "لقد خضعت لعملية جراحية خلال الأشهر الستة الماضية. يرجى الانتظار حتى تنتهي فترة التعافي."
+  },
+  q5: {
+    fr: "Les tatouages ou piercings récents (moins de 12 mois) présentent un risque d'infection. Veuillez attendre 12 mois après la procédure.",
+    ar: "الوشوم أو الثقوب الحديثة (أقل من 12 شهرًا) تشكل خطر العدوى. يرجى الانتظار 12 شهرًا بعد الإجراء."
+  },
+  q6: {
+    fr: "Les femmes enceintes ou ayant accouché récemment ne peuvent pas donner leur sang pour des raisons de santé.",
+    ar: "لا يمكن للنساء الحوامل أو اللواتي ولدن مؤخرًا التبرع بالدم لأسباب صحية."
+  },
+  q7: {
+    fr: "La consommation d'alcool récente affecte la qualité du sang. Veuillez attendre 24 heures.",
+    ar: "استهلاك الكحول الحديث يؤثر على جودة الدم. يرجى الانتظار 24 ساعة."
+  },
+  q8: {
+    fr: "La fièvre récente peut indiquer une infection. Veuillez attendre votre rétablissement complet.",
+    ar: "الحمى الأخيرة قد تشير إلى وجود عدوى. يرجى الانتظار حتى تتعافى تمامًا."
+  },
+  q9: {
+    fr: "Vous devez attendre au moins 2 mois entre chaque don de sang pour permettre à votre corps de récupérer.",
+    ar: "يجب عليك الانتظار شهرين على الأقل بين كل تبرع بالدم للسماح لجسمك بالتعافي."
+  },
+  q10: {
+    fr: "Le poids minimum requis pour donner son sang est de 50 kg pour votre sécurité.",
+    ar: "الوزن الأدنى المطلوب للتبرع بالدم هو 50 كجم لسلامتك."
+  },
+  q11: {
+    fr: "L'âge requis pour donner son sang est entre 18 et 65 ans.",
+    ar: "العمر المطلوب للتبرع بالدم هو بين 18 و 65 سنة."
+  },
+  q12: {
+    fr: "Les problèmes cardiaques ou l'hypertension non contrôlée contre-indiquent le don de sang.",
+    ar: "مشاكل القلب أو ارتفاع ضغط الدم غير المسيطر عليه يمنعان التبرع بالدم."
+  },
+  q13: {
+    fr: "Le diabète sous insuline est une contre-indication au don de sang.",
+    ar: "مرض السكري الذي يتطلب الأنسولين يمنع التبرع بالدم."
+  },
+  q14: {
+    fr: "Un antécédent de VIH, hépatite B ou C est une contre-indication permanente au don de sang.",
+    ar: "تاريخ الإصابة بفيروس نقص المناعة أو التهاب الكبد B أو C يمنع التبرع بالدم بشكل دائم."
+  }
+};
+
 const DonationForm = () => {
   const {
     t,
@@ -84,11 +137,11 @@ const DonationForm = () => {
     const answers = formData.eligibilityAnswers;
     for (const question of disqualifyingQuestions) {
       if (answers[question] === true) {
-        const questionKey = question as keyof typeof t.form;
-        const questionText = t.form[questionKey] as string;
+        const reasonObj = ineligibilityReasons[question];
+        const reason = language === 'ar' ? reasonObj.ar : reasonObj.fr;
         return {
           eligible: false,
-          reason: questionText
+          reason
         };
       }
     }
