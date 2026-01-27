@@ -26,7 +26,11 @@ const PersonalInfoStep = ({ formData, updateFormData, onNext, onPrev }: Personal
 
     if (!formData.firstName.trim()) newErrors.firstName = t.common.required;
     if (!formData.lastName.trim()) newErrors.lastName = t.common.required;
-    if (!formData.identityNumber.trim()) newErrors.identityNumber = t.common.required;
+    if (!formData.identityNumber.trim()) {
+      newErrors.identityNumber = t.common.required;
+    } else if (!/^\d{8}$/.test(formData.identityNumber.trim())) {
+      newErrors.identityNumber = t.form.cinInvalid;
+    }
     if (!formData.phoneNumber.trim()) newErrors.phoneNumber = t.common.required;
     if (!formData.dateOfBirth) newErrors.dateOfBirth = t.common.required;
 
