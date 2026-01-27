@@ -323,15 +323,16 @@ const AdminPanel = () => {
                           {/* Actions */}
                           {request.status === 'pending' && request.is_eligible && <div className="space-y-4 pt-4 border-t">
                               <div className="space-y-2">
-                                <Label>{t.admin.appointmentDate}</Label>
+                                <Label>{t.admin.appointmentDate} *</Label>
                                 <Input type="datetime-local" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)} />
+                                {!appointmentDate && <p className="text-xs text-muted-foreground">{t.admin.appointmentRequired}</p>}
                               </div>
                               <div className="space-y-2">
                                 <Label>{t.admin.notes}</Label>
                                 <Textarea value={adminNotes} onChange={e => setAdminNotes(e.target.value)} rows={2} />
                               </div>
                               <div className="flex gap-3">
-                                <Button className="flex-1 bg-success hover:bg-success/90" onClick={() => updateRequestStatus(request.id, 'approved')} disabled={isUpdating}>
+                                <Button className="flex-1 bg-success hover:bg-success/90" onClick={() => updateRequestStatus(request.id, 'approved')} disabled={isUpdating || !appointmentDate}>
                                   {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                   <CheckCircle className="w-4 h-4 mr-2" />
                                   {t.admin.approve}
