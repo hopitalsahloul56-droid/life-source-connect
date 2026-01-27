@@ -240,12 +240,12 @@ const AdminPanel = () => {
   if (!isAdmin) {
     return null;
   }
-  return <div className="min-h-screen pt-20 pb-12 bg-warm">
+  return <div className="min-h-screen pt-20 pb-12 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-secondary-foreground">{t.admin.title}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t.admin.title}</h1>
             <p className="text-muted-foreground mt-1">{user?.email}</p>
           </div>
           <Button variant="outline" onClick={signOut}>
@@ -256,24 +256,24 @@ const AdminPanel = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('all')}>
+          <Card className={`p-4 text-center cursor-pointer hover:bg-accent/10 transition-colors ${activeFilter === 'all' ? 'ring-2 ring-primary' : ''}`} onClick={() => setActiveFilter('all')}>
             <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <p className="text-2xl font-bold">{stats.total}</p>
+            <p className="text-2xl font-bold text-foreground">{stats.total}</p>
             <p className="text-sm text-muted-foreground">{t.admin.total}</p>
           </Card>
-          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('pending')}>
+          <Card className={`p-4 text-center cursor-pointer hover:bg-accent/10 transition-colors ${activeFilter === 'pending' ? 'ring-2 ring-warning' : ''}`} onClick={() => setActiveFilter('pending')}>
             <Clock className="w-8 h-8 mx-auto mb-2 text-warning" />
-            <p className="text-2xl font-bold">{stats.pending}</p>
+            <p className="text-2xl font-bold text-foreground">{stats.pending}</p>
             <p className="text-sm text-muted-foreground">{t.admin.pending}</p>
           </Card>
-          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('approved')}>
+          <Card className={`p-4 text-center cursor-pointer hover:bg-accent/10 transition-colors ${activeFilter === 'approved' ? 'ring-2 ring-success' : ''}`} onClick={() => setActiveFilter('approved')}>
             <CheckCircle className="w-8 h-8 mx-auto mb-2 text-success" />
-            <p className="text-2xl font-bold">{stats.approved}</p>
+            <p className="text-2xl font-bold text-foreground">{stats.approved}</p>
             <p className="text-sm text-muted-foreground">{t.admin.approved}</p>
           </Card>
-          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('archived')}>
+          <Card className={`p-4 text-center cursor-pointer hover:bg-accent/10 transition-colors ${activeFilter === 'archived' ? 'ring-2 ring-muted-foreground' : ''}`} onClick={() => setActiveFilter('archived')}>
             <Archive className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-2xl font-bold">{stats.archived}</p>
+            <p className="text-2xl font-bold text-foreground">{stats.archived}</p>
             <p className="text-sm text-muted-foreground">{t.admin.archived}</p>
           </Card>
         </div>
