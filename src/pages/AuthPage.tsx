@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Droplet, Loader2, Mail, Lock } from 'lucide-react';
+import { Droplet, Loader2, Mail, Lock, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AuthPage = () => {
   const { t, language } = useLanguage();
@@ -108,6 +109,18 @@ const AuthPage = () => {
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
             ) : null}
             {t.auth.login}
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full"
+            size="lg"
+            asChild
+          >
+            <Link to="/">
+              <Home className="w-5 h-5 mr-2" />
+              {language === 'ar' ? 'الرئيسية' : 'Accueil'}
+            </Link>
           </Button>
         </form>
       </Card>
