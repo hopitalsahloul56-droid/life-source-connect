@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -16,23 +16,82 @@ interface EmailRequest {
   language: 'fr' | 'ar';
 }
 
-const handler = async (req: Request): Promise<Response> => {
+Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify admin authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.log('Missing or invalid authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the token and get user claims
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.log('Invalid token');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Verify user is admin using service role
+    const supabaseService = createClient(
+      supabaseUrl,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    const { data: profile, error: profileError } = await supabaseService
+      .from('profiles')
+      .select('is_admin')
+      .eq('user_id', userId)
+      .single();
+
+    if (profileError || !profile?.is_admin) {
+      console.log('User is not an admin');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Admin authenticated, processing email request');
+
     const { email, firstName, lastName, status, appointmentDate, language }: EmailRequest = await req.json();
 
-    console.log("Sending email to:", email, "Status:", status, "Language:", language);
-
-    if (!email) {
-      console.log("No email provided, skipping notification");
-      return new Response(JSON.stringify({ success: true, message: "No email to send to" }), {
+    // Validate email format
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.log('Invalid or missing email');
+      return new Response(JSON.stringify({ success: true, message: "Invalid email, skipping" }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
+    }
+
+    // Validate other required fields
+    if (!firstName || !lastName || !status || !language) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const formatDate = (dateString: string) => {
@@ -156,20 +215,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error("Resend API error:", errorText);
-      throw new Error(`Resend API error: ${res.status}`);
+      console.error("Email API error, status:", res.status);
+      throw new Error(`Email API error: ${res.status}`);
     }
 
     const emailResponse = await res.json();
-
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sent successfully");
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    console.error("Error sending email:", error);
+    console.error("Error processing request:", error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
@@ -178,6 +236,4 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   }
-};
-
-serve(handler);
+});
