@@ -8,7 +8,6 @@ import PersonalInfoStep from './PersonalInfoStep';
 import EligibilityStep from './EligibilityStep';
 import ResultStep from './ResultStep';
 import StepIndicator from './StepIndicator';
-
 export interface DonationFormData {
   firstName: string;
   lastName: string;
@@ -21,7 +20,6 @@ export interface DonationFormData {
   eligibilityAnswers: Record<string, boolean>;
   termsAccepted: boolean;
 }
-
 const initialFormData: DonationFormData = {
   firstName: '',
   lastName: '',
@@ -32,68 +30,80 @@ const initialFormData: DonationFormData = {
   bloodType: 'unknown',
   address: '',
   eligibilityAnswers: {},
-  termsAccepted: false,
+  termsAccepted: false
 };
 
 // Questions that make the donor ineligible if answered "yes"
 const disqualifyingQuestions = ['q1', 'q3', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14'];
-
 const DonationForm = () => {
-  const { t, language } = useLanguage();
+  const {
+    t,
+    language
+  } = useLanguage();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<DonationFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<{ eligible: boolean; reason?: string } | null>(null);
-
-  const steps = [
-    { number: 1, label: t.form.step1 },
-    { number: 2, label: t.form.step2 },
-    { number: 3, label: t.form.step3 },
-    { number: 4, label: t.form.step4 },
-  ];
-
+  const [result, setResult] = useState<{
+    eligible: boolean;
+    reason?: string;
+  } | null>(null);
+  const steps = [{
+    number: 1,
+    label: t.form.step1
+  }, {
+    number: 2,
+    label: t.form.step2
+  }, {
+    number: 3,
+    label: t.form.step3
+  }, {
+    number: 4,
+    label: t.form.step4
+  }];
   const updateFormData = (data: Partial<DonationFormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    setFormData(prev => ({
+      ...prev,
+      ...data
+    }));
   };
-
   const nextStep = () => {
     if (currentStep < 4) {
       setCurrentStep(prev => prev + 1);
     }
   };
-
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
     }
   };
-
-  const checkEligibility = (): { eligible: boolean; reason?: string } => {
+  const checkEligibility = (): {
+    eligible: boolean;
+    reason?: string;
+  } => {
     const answers = formData.eligibilityAnswers;
-    
     for (const question of disqualifyingQuestions) {
       if (answers[question] === true) {
         const questionKey = question as keyof typeof t.form;
         const questionText = t.form[questionKey] as string;
         return {
           eligible: false,
-          reason: questionText,
+          reason: questionText
         };
       }
     }
-    
-    return { eligible: true };
+    return {
+      eligible: true
+    };
   };
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    
     const eligibilityResult = checkEligibility();
     setResult(eligibilityResult);
-
     try {
-      const { error } = await supabase.from('donation_requests').insert({
+      const {
+        error
+      } = await supabase.from('donation_requests').insert({
         first_name: formData.firstName,
         last_name: formData.lastName,
         identity_number: formData.identityNumber,
@@ -107,16 +117,14 @@ const DonationForm = () => {
         ineligibility_reason: eligibilityResult.reason || null,
         terms_accepted: formData.termsAccepted,
         terms_accepted_at: new Date().toISOString(),
-        status: eligibilityResult.eligible ? 'pending' : 'rejected',
+        status: eligibilityResult.eligible ? 'pending' : 'rejected'
       });
-
       if (error) {
         console.error('Error submitting donation request:', error);
         toast.error(t.common.error);
         setIsSubmitting(false);
         return;
       }
-
       nextStep();
     } catch (error) {
       console.error('Error submitting donation request:', error);
@@ -125,69 +133,34 @@ const DonationForm = () => {
       setIsSubmitting(false);
     }
   };
-
   const goHome = () => {
     navigate('/');
   };
-
-  return (
-    <div className="min-h-screen pt-20 pb-12 bg-warm">
+  return <div className="min-h-screen pt-20 pb-12 bg-warm">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8 animate-fade-in">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl font-bold mb-2 text-destructive">
               {t.form.title}
             </h1>
           </div>
 
           {/* Step Indicator */}
-          {currentStep < 4 && (
-            <StepIndicator steps={steps} currentStep={currentStep} />
-          )}
+          {currentStep < 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {/* Form Steps */}
           <div className="bg-card rounded-3xl shadow-lg p-6 md:p-8 animate-fade-in">
-            {currentStep === 1 && (
-              <TermsStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-              />
-            )}
+            {currentStep === 1 && <TermsStep formData={formData} updateFormData={updateFormData} onNext={nextStep} />}
 
-            {currentStep === 2 && (
-              <PersonalInfoStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
+            {currentStep === 2 && <PersonalInfoStep formData={formData} updateFormData={updateFormData} onNext={nextStep} onPrev={prevStep} />}
 
-            {currentStep === 3 && (
-              <EligibilityStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onSubmit={handleSubmit}
-                onPrev={prevStep}
-                isSubmitting={isSubmitting}
-              />
-            )}
+            {currentStep === 3 && <EligibilityStep formData={formData} updateFormData={updateFormData} onSubmit={handleSubmit} onPrev={prevStep} isSubmitting={isSubmitting} />}
 
-            {currentStep === 4 && result && (
-              <ResultStep
-                eligible={result.eligible}
-                reason={result.reason}
-                identityNumber={formData.identityNumber}
-                onGoHome={goHome}
-              />
-            )}
+            {currentStep === 4 && result && <ResultStep eligible={result.eligible} reason={result.reason} identityNumber={formData.identityNumber} onGoHome={goHome} />}
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default DonationForm;
