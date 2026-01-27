@@ -149,6 +149,8 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       approved: "Approuvées",
       rejected: "Refusées",
       total: "Total",
+      archived: "Archivées",
+      completed: "Terminé",
       noRequests: "Aucune demande",
       viewDetails: "Voir détails",
       approve: "Approuver",
@@ -170,6 +172,10 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       appointmentTime: "Heure du rendez-vous",
       appointmentRequired: "Veuillez sélectionner une date de rendez-vous pour approuver",
       appointmentMustBeFuture: "La date du rendez-vous doit être dans le futur",
+      clearArchived: "Supprimer les archivées",
+      clearArchivedConfirmTitle: "Supprimer les demandes archivées ?",
+      clearArchivedConfirmDesc: "Cette action supprimera définitivement toutes les demandes refusées, non éligibles et les rendez-vous passés. Cette action est irréversible.",
+      clearedArchived: "Demandes archivées supprimées avec succès",
     },
     // Auth
     auth: {
@@ -337,6 +343,8 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       approved: "مقبولة",
       rejected: "مرفوضة",
       total: "المجموع",
+      archived: "مؤرشفة",
+      completed: "مكتمل",
       noRequests: "لا توجد طلبات",
       viewDetails: "عرض التفاصيل",
       approve: "قبول",
@@ -358,6 +366,10 @@ Conformément aux lois en vigueur sur la protection des données, vous avez le d
       appointmentTime: "وقت الموعد",
       appointmentRequired: "يرجى تحديد موعد للموافقة على الطلب",
       appointmentMustBeFuture: "يجب أن يكون تاريخ الموعد في المستقبل",
+      clearArchived: "حذف المؤرشفة",
+      clearArchivedConfirmTitle: "حذف الطلبات المؤرشفة؟",
+      clearArchivedConfirmDesc: "سيؤدي هذا إلى حذف جميع الطلبات المرفوضة وغير المؤهلة والمواعيد المنتهية نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      clearedArchived: "تم حذف الطلبات المؤرشفة بنجاح",
     },
     // Auth
     auth: {

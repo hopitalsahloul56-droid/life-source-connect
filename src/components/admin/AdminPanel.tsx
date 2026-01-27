@@ -7,12 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { BarChart3, Clock, CheckCircle, XCircle, Users, Eye, Calendar, Loader2, LogOut } from 'lucide-react';
+import { BarChart3, Clock, CheckCircle, XCircle, Users, Eye, Calendar, Loader2, LogOut, Trash2, Archive } from 'lucide-react';
 import AppointmentsCalendar from './AppointmentsCalendar';
+
+type RequestFilter = 'all' | 'pending' | 'approved' | 'archived';
+
 interface DonationRequest {
   id: string;
   first_name: string;
@@ -49,6 +54,8 @@ const AdminPanel = () => {
   const [appointmentDate, setAppointmentDate] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<RequestFilter>('all');
+  const [isClearing, setIsClearing] = useState(false);
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -142,13 +149,71 @@ const AdminPanel = () => {
       setIsUpdating(false);
     }
   };
+  // Helper to check if a request is "archived" (rejected, non-eligible, or past appointment)
+  const isArchivedRequest = (request: DonationRequest) => {
+    const now = new Date();
+    const isPastAppointment = request.status === 'approved' && 
+      request.appointment_date && 
+      new Date(request.appointment_date) < now;
+    const isRejectedOrIneligible = request.status === 'rejected' || !request.is_eligible;
+    return isPastAppointment || isRejectedOrIneligible;
+  };
+
+  // Get archived requests
+  const archivedRequests = requests.filter(isArchivedRequest);
+
   const stats = {
     total: requests.length,
-    pending: requests.filter(r => r.status === 'pending').length,
-    approved: requests.filter(r => r.status === 'approved').length,
-    rejected: requests.filter(r => r.status === 'rejected').length
+    pending: requests.filter(r => r.status === 'pending' && r.is_eligible).length,
+    approved: requests.filter(r => r.status === 'approved' && r.appointment_date && new Date(r.appointment_date) >= new Date()).length,
+    archived: archivedRequests.length
   };
-  const getStatusBadge = (status: string) => {
+
+  // Filter requests based on active filter
+  const getFilteredRequests = () => {
+    const now = new Date();
+    switch (activeFilter) {
+      case 'pending':
+        return requests.filter(r => r.status === 'pending' && r.is_eligible);
+      case 'approved':
+        return requests.filter(r => r.status === 'approved' && r.appointment_date && new Date(r.appointment_date) >= now);
+      case 'archived':
+        return archivedRequests;
+      default:
+        return requests;
+    }
+  };
+
+  const filteredRequests = getFilteredRequests();
+
+  // Clear archived requests
+  const clearArchivedRequests = async () => {
+    setIsClearing(true);
+    try {
+      const archivedIds = archivedRequests.map(r => r.id);
+      
+      const { error } = await supabase
+        .from('donation_requests')
+        .delete()
+        .in('id', archivedIds);
+      
+      if (error) throw error;
+      
+      toast.success(t.admin.clearedArchived);
+      fetchRequests();
+    } catch (error) {
+      console.error('Error clearing archived requests:', error);
+      toast.error(t.common.error);
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  const getStatusBadge = (status: string, request?: DonationRequest) => {
+    // Check if it's a past appointment
+    if (request && status === 'approved' && request.appointment_date && new Date(request.appointment_date) < new Date()) {
+      return <Badge variant="outline" className="bg-muted text-muted-foreground border-muted-foreground">{t.admin.completed}</Badge>;
+    }
     switch (status) {
       case 'pending':
         return <Badge variant="outline" className="bg-warning/10 text-warning border-warning">{t.admin.pending}</Badge>;
@@ -191,25 +256,25 @@ const AdminPanel = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 text-center">
+          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('all')}>
             <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
             <p className="text-2xl font-bold">{stats.total}</p>
             <p className="text-sm text-muted-foreground">{t.admin.total}</p>
           </Card>
-          <Card className="p-4 text-center">
+          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('pending')}>
             <Clock className="w-8 h-8 mx-auto mb-2 text-warning" />
             <p className="text-2xl font-bold">{stats.pending}</p>
             <p className="text-sm text-muted-foreground">{t.admin.pending}</p>
           </Card>
-          <Card className="p-4 text-center">
+          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('approved')}>
             <CheckCircle className="w-8 h-8 mx-auto mb-2 text-success" />
             <p className="text-2xl font-bold">{stats.approved}</p>
             <p className="text-sm text-muted-foreground">{t.admin.approved}</p>
           </Card>
-          <Card className="p-4 text-center">
-            <XCircle className="w-8 h-8 mx-auto mb-2 text-destructive" />
-            <p className="text-2xl font-bold">{stats.rejected}</p>
-            <p className="text-sm text-muted-foreground">{t.admin.rejected}</p>
+          <Card className="p-4 text-center cursor-pointer hover:bg-secondary/50 transition-colors" onClick={() => setActiveFilter('archived')}>
+            <Archive className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-2xl font-bold">{stats.archived}</p>
+            <p className="text-sm text-muted-foreground">{t.admin.archived}</p>
           </Card>
         </div>
 
@@ -218,21 +283,74 @@ const AdminPanel = () => {
 
         <div className="mt-8">
         <Card className="p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold">{t.admin.requests}</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">{t.admin.requests}</h2>
+            </div>
+            
+            {/* Tabs for filtering */}
+            <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as RequestFilter)} className="hidden md:block">
+              <TabsList>
+                <TabsTrigger value="all">{t.admin.total} ({stats.total})</TabsTrigger>
+                <TabsTrigger value="pending">{t.admin.pending} ({stats.pending})</TabsTrigger>
+                <TabsTrigger value="approved">{t.admin.approved} ({stats.approved})</TabsTrigger>
+                <TabsTrigger value="archived">{t.admin.archived} ({stats.archived})</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
-          {requests.length === 0 ? <p className="text-center text-muted-foreground py-8">
+          {/* Mobile filter tabs */}
+          <div className="md:hidden mb-4">
+            <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as RequestFilter)}>
+              <TabsList className="grid grid-cols-4 w-full">
+                <TabsTrigger value="all" className="text-xs">{t.admin.total}</TabsTrigger>
+                <TabsTrigger value="pending" className="text-xs">{t.admin.pending}</TabsTrigger>
+                <TabsTrigger value="approved" className="text-xs">{t.admin.approved}</TabsTrigger>
+                <TabsTrigger value="archived" className="text-xs">{t.admin.archived}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Clear archived button */}
+          {activeFilter === 'archived' && archivedRequests.length > 0 && (
+            <div className="mb-4">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={isClearing}>
+                    {isClearing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    {t.admin.clearArchived} ({archivedRequests.length})
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.admin.clearArchivedConfirmTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t.admin.clearArchivedConfirmDesc}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.admin.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={clearArchivedRequests} className="bg-destructive hover:bg-destructive/90">
+                      {t.admin.clearArchived}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+
+          {filteredRequests.length === 0 ? <p className="text-center text-muted-foreground py-8">
               {t.admin.noRequests}
             </p> : <div className="space-y-4">
-              {requests.map(request => <div key={request.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-secondary/50 gap-4">
+              {filteredRequests.map(request => <div key={request.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-secondary/50 gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-semibold">
                         {request.first_name} {request.last_name}
                       </h3>
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.status, request)}
                       {!request.is_eligible && <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive text-xs">
                           {t.form.ineligibleTitle}
                         </Badge>}
