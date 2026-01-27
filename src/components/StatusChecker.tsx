@@ -9,8 +9,6 @@ import { Search, CheckCircle, XCircle, Clock, Calendar, Loader2 } from 'lucide-r
 interface DonationStatus {
   status: 'pending' | 'approved' | 'rejected';
   appointment_date: string | null;
-  first_name: string;
-  last_name: string;
 }
 
 const StatusChecker = () => {
@@ -38,8 +36,6 @@ const StatusChecker = () => {
         setResult({
           status: data.status,
           appointment_date: data.appointment_date,
-          first_name: data.first_name,
-          last_name: data.last_name,
         });
       } else {
         setNotFound(true);
@@ -140,10 +136,7 @@ const StatusChecker = () => {
               <div className={`rounded-2xl p-6 border-2 ${getStatusColor(result.status)} animate-scale-in`}>
                 <div className="flex flex-col items-center text-center">
                   {getStatusIcon(result.status)}
-                  <h3 className="text-lg font-semibold mt-4 mb-2">
-                    {result.first_name} {result.last_name}
-                  </h3>
-                  <p className="text-foreground font-medium">
+                  <p className="text-foreground font-medium mt-4">
                     {getStatusMessage(result.status)}
                   </p>
                   {result.status === 'approved' && result.appointment_date && (
