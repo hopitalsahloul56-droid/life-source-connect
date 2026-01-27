@@ -166,7 +166,12 @@
 
   /* Glass effect */
   .glass {
-    @apply backdrop-blur-md bg-white/80 border border-white/20;
+    @apply backdrop-blur-md border border-border/50;
+    background: hsl(var(--background) / 0.85);
+  }
+
+  .dark .glass {
+    background: hsl(var(--card) / 0.85);
   }
 
   /* Pulse animation for CTA */
@@ -224,8 +229,7 @@
 
   /* Stat card */
   .stat-card {
-    @apply relative overflow-hidden rounded-2xl p-6;
-    background: var(--gradient-card);
+    @apply relative overflow-hidden rounded-2xl p-6 bg-card;
     box-shadow: var(--shadow-soft);
   }
 
